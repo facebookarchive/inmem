@@ -103,7 +103,7 @@ func (c *cache) removeElement(e *list.Element) {
 
 type lockedCache struct {
 	c cache
-	m sync.Mutex
+	m sync.RWMutex
 }
 
 // NewLocked constructs a new Cache of the given size that is safe for
@@ -128,9 +128,9 @@ func (l *lockedCache) Add(key, value interface{}, expiresAt time.Time) {
 }
 
 func (l *lockedCache) Get(key interface{}) (interface{}, bool) {
-	l.m.Lock()
+	l.m.RLock()
 	v, f := l.c.Get(key)
-	l.m.Unlock()
+	l.m.RUnlock()
 	return v, f
 }
 
@@ -141,8 +141,8 @@ func (l *lockedCache) Remove(key interface{}) {
 }
 
 func (l *lockedCache) Len() int {
-	l.m.Lock()
+	l.m.RLock()
 	c := l.c.Len()
-	l.m.Unlock()
+	l.m.RUnlock()
 	return c
 }
